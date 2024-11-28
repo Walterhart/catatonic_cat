@@ -11,21 +11,26 @@ TOKEN = os.getenv('DISCORD_TOKEN')
 intents = discord.Intents.default()
 intents.message_content = True
 
-# Initialize the bot
-bot = commands.Bot(command_prefix='/Cast', intents=intents)
+# Initialize bot
+class VoidCat(commands.Bot):
+    def __init__(self):
+        super().__init__(command_prefix="/Meow", intents=intents)
+    
+    async def setup_hook(self):
+        # Sync application commands (slash commands)
+        await self.tree.sync()
+
+        # Dynamically load cogs
+        for cog in ['cogs.youtube', 'cogs.general']:
+            await self.load_extension(cog)
+
+# Instantiate the bot
+bot = VoidCat()
 
 @bot.event
 async def on_ready():
     await bot.change_presence(activity=discord.Game(name="Napping in the void"))
     print(f'{bot.user} has connected to Discord and is monitoring server activity.')
 
-@bot.command(name='ping')
-async def ping(ctx):
-    await ctx.send('Yea Yea I am awake')
-
-@bot.event
-async def on_message(message):
-    print(f"Received message: {message.content}")
-    await bot.process_commands(message)
-
+# Run the bot
 bot.run(TOKEN)

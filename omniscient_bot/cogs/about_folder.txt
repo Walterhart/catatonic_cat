@@ -1,0 +1,1 @@
+074Cogs are Python classes that contain groups of related commands and listeners. Instead of having all  bot’s functionality in a single file, it can be split it across multiple files using cogs.
