@@ -120,3 +120,75 @@ async def test_on_message_from_bot(youtube_cog):
 
     # Assert that no response was sent
     message.channel.send.assert_not_called()
+
+
+@pytest.mark.asyncio
+async def test_on_message_respects_max_links(youtube_cog):
+    """Test that on_message respects the MAX_LINKS limit and skips extra links."""
+    message = AsyncMock()
+    message.author.bot = False
+
+    # Generate more than MAX_LINKS links
+    links = [f"https://www.youtube.com/watch?v=video{i}" for i in range(10)]
+    message.content = " ".join(links)  # All links in the message
+    message.channel.send = AsyncMock()
+
+    # Mock fetch_video_details to return the same result for all links
+    with patch.object(
+        youtube_cog,
+        "fetch_video_details",
+        return_value={"title": "Test Video", "description": "A test video."}
+    ):
+        await youtube_cog.on_message(message)
+
+    # Assert that only MAX_LINKS links were processed
+    expected_response = "\n\n".join(
+        ["**Video Title:** Test Video\n**Description:** A test video."] * YouTubeCog.MAX_LINKS
+    )
+    message.channel.send.assert_any_call(expected_response)
+
+    # Assert that the skipped link notification was sent
+    skipped_count = len(links) - YouTubeCog.MAX_LINKS
+    message.channel.send.assert_any_call(
+        f"Max links summarized reached. {skipped_count} YouTube link(s) were skipped because only the first {YouTubeCog.MAX_LINKS} links are processed per message."
+    )
+
+
+@pytest.mark.asyncio
+async def test_on_message_with_fewer_links_than_max(youtube_cog):
+    """Test on_message processes all links when fewer than MAX_LINKS are provided."""
+    message = AsyncMock()
+    message.author.bot = False
+
+    # Provide fewer links than MAX_LINKS
+    message.content = "https://www.youtube.com/watch?v=video1 https://www.youtube.com/watch?v=video2"
+    message.channel.send = AsyncMock()
+
+    # Mock fetch_video_details to return the same result for all links
+    with patch.object(
+        youtube_cog, 
+        "fetch_video_details", 
+        return_value={"title": "Test Video", "description": "A test video."}
+    ):
+        await youtube_cog.on_message(message)
+
+    # Assert that all provided links were processed
+    expected_response = (
+        "**Video Title:** Test Video\n**Description:** A test video.\n\n"
+        "**Video Title:** Test Video\n**Description:** A test video."
+    )
+    message.channel.send.assert_called_once_with(expected_response)
+
+@pytest.mark.asyncio
+async def test_on_message_no_links(youtube_cog):
+    """Test on_message does nothing when no links are present."""
+    message = AsyncMock()
+    message.author.bot = False
+    message.content = "This is just a normal message with no links."
+    message.channel.send = AsyncMock()
+
+    await youtube_cog.on_message(message)
+
+    # Assert that no message was sent
+    message.channel.send.assert_not_called()
+

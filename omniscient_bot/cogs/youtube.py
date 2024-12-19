@@ -8,6 +8,8 @@ TOKEN = os.getenv("YOUTUBE_TOKEN")
 class YouTubeCog(commands.Cog):
     """A cog for detecting YouTube links."""
 
+    MAX_LINKS = 5  # Limit the number of links processed per message
+
     def __init__(self, bot):
         self.bot = bot
 
@@ -46,13 +48,15 @@ class YouTubeCog(commands.Cog):
         if message.author.bot:  # Ignore bot messages
             return
 
-        # Track valid and invalid links 
         valid_responses = []
         invalid_responses = []
 
         # Find URLs in the message
         urls = re.findall(r'(https?://[^\s]+)', message.content)
-        for url in urls:
+        urls_to_process = urls[:self.MAX_LINKS]  # Limit the number of links processed
+        skipped_count = len(urls) - self.MAX_LINKS  
+
+        for url in urls_to_process:
             try:
                 if 'youtube.com' in url or 'youtu.be' in url:
                     video_id = self.extract_video_id(url)
@@ -72,6 +76,12 @@ class YouTubeCog(commands.Cog):
             except Exception as e:
                 print(f"Unexpected error processing URL {url}: {e}")
                 invalid_responses.append(f"**{url}** - An unexpected error occurred while processing this link.")
+
+        # Notify if some links were skipped
+        if skipped_count > 0:
+            await message.channel.send(
+                f"Max links summarized reached. {skipped_count} YouTube link(s) were skipped because only the first {self.MAX_LINKS} links are processed per message."
+            )
 
         # Send responses
         if valid_responses:
