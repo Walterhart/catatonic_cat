@@ -13,8 +13,9 @@ class YouTubeCog(commands.Cog):
 
     def extract_video_id(self, url):
         """Extract video ID from YouTube URL."""
-        match = re.search(r'(?:v=|youtu\.be/)([^&?/\s]+)', url)
-        return match.group(1) if match else None
+        # Match only valid YouTube URLs
+        match = re.search(r'(?:https?://(?:www\.)?(youtube\.com/watch\?v=|youtu\.be/))([^&?/\s]+)', url)
+        return match.group(2) if match else None
 
     def fetch_video_details(self, video_id):
         """Fetch video details from YouTube API."""
