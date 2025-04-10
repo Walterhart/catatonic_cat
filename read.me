@@ -1,0 +1,72 @@
+# Catatonic Cat Bot – YouTube Summarizer for Discord
+
+Catatonic Cat is a personal Discord bot that summarizes YouTube links shared in servers. This project demonstrates Discord bot development, API integration, and natural language processing techniques.
+
+## Features
+
+- YouTube link detection in messages  
+- Video transcript retrieval using the YouTube Transcript API  
+- Text preprocessing with punctuation restoration and spell correction  
+- Summarization using LSA (Latent Semantic Analysis)  
+- Slash commands like `/meow` for user interaction  
+- Modular design using `discord.py` cogs for scalability
+
+## Technologies Used
+
+- Python and `discord.py`  
+- YouTube Transcript API  
+- `sumy` (LSA summarizer)  
+- `deepmultilingualpunctuation`  
+- `pyspellchecker`  
+- `dotenv` for environment variable management
+
+## Project Structure
+
+```
+VoidCat/
+├── bot.py             # Main bot logic and setup
+├── cogs/
+│   ├── general.py     # General commands (e.g. /meow)
+│   └── youtube.py     # YouTube link detection and summarization
+├── tests/
+    ├──test_general.py #General test file
+    ├──test_youtube.py # YouTube test file
+├── .env               # API keys and tokens (not tracked in version control)
+└── README.md          # Project overview and documentation
+```
+
+## Getting Started
+
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/Walterhart/catatonic_cat
+   cd catatonic_cat
+   ```
+
+2. **Install dependencies**
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+3. **Set up your `.env` file**
+   ```
+   DISCORD_TOKEN=your_discord_token
+   YOUTUBE_TOKEN=your_youtube_api_key
+   ```
+
+4. **Run the bot**
+   ```bash
+   python bot.py
+   ```
+
+## Example Usage
+
+- Send a YouTube link in a server chat. If captions are available, the bot will respond with a summary of the video.
+- Use `/meow` to receive a basic interaction response from the bot.
+
+## Future Improvements
+
+- Improve link handling and summarization accuracy
+- Upgrade summarization with newer AI models  
+- Add admin settings or analytics dashboard  
+- Integrate music playback functionality  
